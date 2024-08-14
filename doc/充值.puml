@@ -1,0 +1,24 @@
+@startuml
+actor user
+participant wallet
+boundary bank
+autonumber
+group 发起支付
+user -> wallet: 发起充值请求
+wallet -> bank: 获取预充值交易号
+wallet -> user: 返回二维码支付链接
+user -> bank: 发起支付
+end
+user -> user: 等待支付结果(异步)
+
+group 支付结果通知
+alt 获取支付结果
+opt [固定时间内未收到支付结果通知]
+    wallet -> bank: 查询交易状态
+end opt
+bank -> wallet: 通知支付结果
+end
+wallet -> user: 通知支付结果
+
+end
+@enduml

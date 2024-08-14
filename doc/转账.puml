@@ -1,0 +1,17 @@
+@startuml
+actor userA
+participant wallet
+actor userB
+autonumber
+group 发起支付
+userA -> wallet: 发起充值请求
+opt [未通过合法/合理性校验]
+wallet -> userA: 转账流程终止,告知结果及原因
+end opt
+group 开始转账
+wallet --> wallet: 扣减 userA 账户余额
+wallet --> wallet: 增加 userB 账户余额
+end
+wallet -> userA: 返回转账结果
+
+@enduml

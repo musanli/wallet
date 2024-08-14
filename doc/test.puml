@@ -1,0 +1,15 @@
+@startuml
+start
+-foo1
+-foo1
+'floating note left: 这是一个注释
+':foo2;
+'note right
+'这个注释是
+'//多行的//, 同样可以
+'包含 <b>HTML</b> 文本.
+'====
+'* 调用函数 ""foo()"" 是被禁止的。
+'end note
+stop
+@enduml

@@ -1,0 +1,79 @@
+@startuml
+package "Wallet System" {
+    component "User Interface" {
+        interface "IUserInterface" {
+            +Res deposit()
+        }
+    }
+
+    component "Wallet" {
+        interface "IWallet" {
+            +void deposit(double amount)
+        }
+        interface "Check" {
+            +boolean Check(data)
+        }
+    }
+
+    component "Bank" {
+        interface "Deposit" {
+            +void deposit(double amount)
+        }
+        interface "Notify" {
+            +boolean Check(data)
+        }
+    }
+
+    Wallet::deposit --> Bank::deposit: "Deposit"
+'
+'    component "Wallet" {
+'        interface "IWallet" {
+'            +void deposit(double amount)
+'            +void withdraw(double amount)
+'            +double getBalance()
+'        }
+'
+'        class "WalletImpl" implements "IWallet" {
+'            -double balance
+'            +WalletImpl()
+'            +void deposit(double amount)
+'            +void withdraw(double amount)
+'            +double getBalance()
+'        }
+'    }
+'
+'    component "Transaction" {
+'        interface "ITransaction" {
+'            +void recordDeposit(double amount)
+'            +void recordWithdrawal(double amount)
+'        }
+'
+'        class "TransactionImpl" implements "ITransaction" {
+'            // 可以包含日志记录等相关实现
+'            +TransactionImpl()
+'            +void recordDeposit(double amount)
+'            +void recordWithdrawal(double amount)
+'        }
+'    }
+'
+'    component "Database" {
+'        interface "IDatabase" {
+'            +void saveWalletState(Wallet wallet)
+'            +Wallet loadWalletState()
+'        }
+'
+'        class "DatabaseImpl" implements "IDatabase" {
+'            // 数据库连接和操作的实现
+'            +DatabaseImpl()
+'            +void saveWalletState(Wallet wallet)
+'            +Wallet loadWalletState()
+'        }
+'    }
+
+
+
+'    "User Interface" --> "Wallet"
+'    "Wallet" --> "Transaction"
+'    "Wallet" --> "Database"
+}
+@enduml

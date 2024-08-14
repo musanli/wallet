@@ -1,0 +1,25 @@
+@startuml
+actor user
+participant wallet
+boundary bank
+autonumber
+group 发起提现
+user -> wallet: 发起[提现]请求,并输入本系统支付密码以确认提现
+wallet -> bank: 发起[转账]请求
+bank --> bank: 受理提现请求并开始转账
+
+end
+wallet -> wallet: 等待支付结果(异步)
+user -> user: 等待支付结果(异步)
+
+group 提现结果通知
+alt 获取转账结果
+opt [固定时间内未收到转账结果通知]
+    wallet -> bank: 查询交易状态
+end opt
+bank -> wallet: 通知转账结果
+end
+wallet -> user: 通知提现结果
+
+end
+@enduml

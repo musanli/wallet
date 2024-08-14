@@ -1,0 +1,89 @@
+version: "3"
+services:
+  wallet-mysql:
+    image: mysql:5.7
+    container_name: wallet-mysql
+    ports:
+      - "3406:3306"
+    volumes:
+      - mysql5_wallet_data:/var/lib/mysql # 映射数据目录，宿主机:容器
+      - mysql5_wallet_conf:/etc/mysql # 映射配置目录，宿主机:容器#
+
+    environment:
+      MYSQL_ROOT_PASSWORD: "root"
+    networks:
+      wallet_net:
+        aliases:
+          - wallet-mysql
+    restart: on-failure
+    privileged: true
+  wallet-redis:
+    image: redis
+    container_name: wallet-redis
+    restart: on-failure
+    ports:
+      - '6479:6379'
+    volumes:
+      - redis_wallet_data:/data
+      - redis_wallet_conf:/usr/local/etc/redis
+    networks:
+      wallet_net:
+        aliases:
+          - wallet-redis
+    #配置文件启动
+    command: redis-server /usr/local/etc/redis/redis.conf
+  wallet-nacos:
+    image: nacos/nacos-server:v2.3.0
+    container_name: wallet-nacos
+    ports:
+      - "7948:7848"
+      - "8948:8848"
+      - "9948:9848"
+    volumes:
+      - nacos_data:/home/nacos
+    environment:
+      MYSQL_SERVICE_DB_PARAM: "characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true&useUnicode=true&useSSL=false&serverTimezone=Asia/Shanghai"
+      PREFER_HOST_MODE: hostname
+      MODE: standalone
+      SPRING_DATASOURCE_PLATFORM: mysql
+      MYSQL_SERVICE_HOST: mysql
+      MYSQL_SERVICE_PORT: 3306
+      MYSQL_SERVICE_DB_NAME: nacos_config
+      MYSQL_SERVICE_USER: root
+      MYSQL_SERVICE_PASSWORD: root
+    depends_on: [ wallet-mysql ]
+    networks:
+      wallet_net:
+        aliases:
+          - wallet-nacos
+    restart: on-failure
+    privileged: true
+  wallet-xxl-job:
+    image: xuxueli/xxl-job-admin:2.4.0  # 替换为实际的 xxl-job 镜像
+    container_name: wallet-xxl-job
+    depends_on: [ wallet-mysql ]
+    ports:
+      - "8181:8080"  # 根据需要映射端口 [左边宿主机 右边容器]
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://wallet-mysql:3306/xxl_job?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+    networks:
+      wallet_net:
+        aliases:
+          - wallet-xxl-job
+    restart: on-failure
+    privileged: true
+
+# 网络配置
+networks:
+  wallet_net:
+    name: wallet_net
+    driver: bridge
+
+volumes:
+  mysql5_wallet_data:
+  mysql5_wallet_conf:
+  redis_wallet_data:
+  redis_wallet_conf:
+  nacos_data:
